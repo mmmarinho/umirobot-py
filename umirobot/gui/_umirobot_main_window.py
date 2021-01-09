@@ -309,13 +309,12 @@ class UMIRobotMainWindow(QMainWindow):
         app = QApplication([])
         myapp = UMIRobotMainWindow(umi_robot_shared_memory_receiver)
 
-        import qdarkstyle
-        myapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
-
         # https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
         path = os.path.dirname(os.path.abspath(__file__))
         app.setWindowIcon(QIcon(os.path.join(path, 'icon.png')))
         if os.name == 'nt':
+            import qdarkstyle
+            myapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
             import ctypes
             myappid = 'utokyo.umirobot'
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
