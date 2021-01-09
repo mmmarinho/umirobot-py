@@ -16,7 +16,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='umirobot',
-    version='21.04',
+    version='21.4',
     packages=setuptools.find_packages(),
     url='www.murilomarinho.info',
     license='GPLv3',
@@ -25,5 +25,6 @@ setup(
     description='UMIRobot control code for Python.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    python_requires='>=3.8'
+    python_requires='>=3.8',
+    scripts=['scripts/umirobot_server.py']
 )

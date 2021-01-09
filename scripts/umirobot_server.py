@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Copyright (C) 2020 Murilo Marques Marinho (www.murilomarinho.info)
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
