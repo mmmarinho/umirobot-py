@@ -18,6 +18,9 @@ setup(
     name='umirobot',
     version_format='{tag}.{commitcount}',
     setup_requires=['setuptools-git-version'],
+    install_requires=[
+        'pyserial', 'PyQt5', 'qdarkstyle'
+    ],
     packages=setuptools.find_packages(),
     url='https://github.com/mmmarinho/umirobot-py',
     license='GPLv3',
