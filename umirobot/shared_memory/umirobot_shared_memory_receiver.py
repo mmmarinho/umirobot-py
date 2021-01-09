@@ -31,7 +31,11 @@ class UMIRobotSharedMemoryReceiver:
         return list(self.shareable_potentiometer_values)
 
     def is_open(self):
-        return list(self.connection_information)[self.connection_information_dict['is_open']]
+        try:
+            return list(self.connection_information)[self.connection_information_dict['is_open']]
+        except Exception as e:
+            print("UMIRobotSharedMemoryReceiver::is_open::Issue reading shared memory.")
+            return None
 
     def send_port(self, port):
         if not self.connection_information[self.connection_information_dict['port_connect_signal']]:

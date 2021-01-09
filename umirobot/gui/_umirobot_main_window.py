@@ -169,7 +169,10 @@ class UMIRobotMainWindow(QMainWindow):
         if (not self.is_open) and self.umi_robot_shared_memory_receiver.is_open():
             self.log("Info::Connection established at {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
 
-        if self.umi_robot_shared_memory_receiver.is_open():
+        current_is_open = self.umi_robot_shared_memory_receiver.is_open()
+        if current_is_open is None:
+            self.log("Warning::Error reading shared memory.")
+        if current_is_open:
             self.is_open = True
             try:
                 q = self.umi_robot_shared_memory_receiver.get_q()
