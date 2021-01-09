@@ -19,7 +19,7 @@ setup(
     version_format='{tag}.{commitcount}',
     setup_requires=['setuptools-git-version'],
     packages=setuptools.find_packages(),
-    url='www.murilomarinho.info',
+    url='https://github.com/mmmarinho/umirobot-py',
     license='GPLv3',
     author='Murilo M. Marinho',
     author_email='murilo@g.ecc.u-tokyo.ac.jp',
