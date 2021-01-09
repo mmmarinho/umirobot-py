@@ -172,6 +172,7 @@ class UMIRobotMainWindow(QMainWindow):
         current_is_open = self.umi_robot_shared_memory_receiver.is_open()
         if current_is_open is None:
             self.log("Warning::Error reading shared memory.")
+            return
         if current_is_open:
             self.is_open = True
             try:
