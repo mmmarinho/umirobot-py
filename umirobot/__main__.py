@@ -52,11 +52,11 @@ if __name__ == '__main__':
 
                 # Check if shutdown signal was sent by receiver
                 if shared_memory_provider.get_shutdown_flag():
-                    print('umi_robot_server::Info::Provider shutdown by receiver.')
+                    print('umirobot::__main__::Info::Provider shutdown by receiver.')
                     break
 
         except Exception as e:
-            print('umirobot_server::Error::' + str(e))
+            print('umirobot::__main__::Error::' + str(e))
         except KeyboardInterrupt:
-            print('umirobot_server::Info::Shutdown by CTRL+C.')
+            print('umirobot::__main__::Info::Shutdown by CTRL+C.')
         shared_memory_receiver_process.join()

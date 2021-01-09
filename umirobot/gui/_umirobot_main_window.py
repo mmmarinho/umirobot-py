@@ -321,6 +321,12 @@ class UMIRobotMainWindow(QMainWindow):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
         myapp.show()
-        app.exec_()
+
+        try:
+            app.exec_()
+        except Exception as e:
+            print("umirobot_main_window::run::Error::"+str(e))
+        except KeyboardInterrupt:
+            print("umirobot_main_window::run::Info::Interrupted by user.")
 
         umi_robot_shared_memory_receiver.send_shutdown_flag(True)

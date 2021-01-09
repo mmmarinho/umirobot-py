@@ -22,14 +22,22 @@ class UMIRobotSharedMemoryReceiver:
     def send_qd(self, qd):
         if qd is not None:
             if len(qd) == self.dofs:
+                self.lock.acquire()
                 for i in range(0, self.dofs):
                     self.shareable_qd[i] = qd[i]
+                self.lock.release()
 
     def get_q(self):
-        return list(self.shareable_q)
+        self.lock.acquire()
+        q = list(self.shareable_q)
+        self.lock.release()
+        return q
 
     def get_potentiometer_values(self):
-        return list(self.shareable_potentiometer_values)
+        self.lock.acquire()
+        potentiometer_values = list(self.shareable_potentiometer_values)
+        self.lock.relase()
+        return potentiometer_values
 
     def is_open(self):
         self.lock.acquire()
@@ -45,7 +53,12 @@ class UMIRobotSharedMemoryReceiver:
             print("UMIRobotSharedMemoryReceiver::send_port::Unable to send port.")
 
     def get_port(self):
-        return self.connection_information[self.connection_information_dict['port']]
+        self.lock.acquire()
+        port = self.connection_information[self.connection_information_dict['port']]
+        self.lock.release()
+        return port
 
     def send_shutdown_flag(self, flag):
+        self.lock.acquire()
         self.connection_information[self.connection_information_dict['shutdown_flag']] = flag
+        self.lock.release()

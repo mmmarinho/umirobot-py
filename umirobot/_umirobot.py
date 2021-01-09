@@ -61,10 +61,10 @@ class UMIRobot:
         :param port: The serial communication port, for instance 'COM3' in Windows.
         """
         self.log("Info::Connecting to {}.".format(port))
-        self.port = port
         if port is not None:
             if self.is_open():
                 self.close()
+            self.port = port
             self.serial_.setPort(port)
             self.open()
 

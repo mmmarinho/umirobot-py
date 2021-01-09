@@ -45,17 +45,24 @@ class UMIRobotSharedMemoryProvider:
     def send_q(self, q):
         if q is not None:
             if len(q) == self.dofs:
+                self.lock.acquire()
                 for i in range(0, self.dofs):
                     self.shareable_q[i] = q[i]
+                self.lock.release()
 
     def send_potentiometer_values(self, potentiometer_values):
         if potentiometer_values is not None:
             if len(potentiometer_values) == self.n_potentiometers:
+                self.lock.acquire()
                 for i in range(0, self.n_potentiometers):
                     self.shareable_potentiometer_values[i] = potentiometer_values[i]
+                self.lock.release()
 
     def get_qd(self):
-        return list(self.shareable_qd)
+        self.lock.acquire()
+        qd = list(self.shareable_qd)
+        self.lock.release()
+        return qd
 
     def send_is_open(self, is_open):
         self.lock.acquire()
@@ -63,14 +70,25 @@ class UMIRobotSharedMemoryProvider:
         self.lock.release()
 
     def get_port(self):
-        return self.connection_information[self.connection_information_dict['port']]
+        self.lock.acquire()
+        port = self.connection_information[self.connection_information_dict['port']]
+        self.lock.release()
+        return port
 
     def get_port_connect_signal(self):
-        return self.connection_information[self.connection_information_dict['port_connect_signal']]
+        self.lock.acquire()
+        port_connect_signal = self.connection_information[self.connection_information_dict['port_connect_signal']]
+        self.lock.release()
+        return port_connect_signal
 
     def send_port_connect_signal(self, port_connect_signal):
+        self.lock.acquire()
         self.connection_information[self.connection_information_dict['port_connect_signal']] = port_connect_signal
+        self.lock.release()
 
     def get_shutdown_flag(self):
-        return self.connection_information[self.connection_information_dict['shutdown_flag']]
+        self.lock.acquire()
+        shutdown_flag = self.connection_information[self.connection_information_dict['shutdown_flag']]
+        self.lock.release()
+        return shutdown_flag
 
