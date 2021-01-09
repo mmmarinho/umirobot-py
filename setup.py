@@ -16,7 +16,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='umirobot',
-    version='21.4',
+    version_format='{tag}.{commitcount}',
+    setup_requires=['setuptools-git-version'],
     packages=setuptools.find_packages(),
     url='www.murilomarinho.info',
     license='GPLv3',
