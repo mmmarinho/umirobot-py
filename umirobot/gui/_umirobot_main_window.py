@@ -163,16 +163,17 @@ class UMIRobotMainWindow(QMainWindow):
             self.ui.checkbox_teleoperation.setChecked(False)
 
     def _timer_callback(self):
-        if self.is_open and not self.umi_robot_shared_memory_receiver.is_open():
-            self.log("Warning::Connection lost to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
-            self._button_refresh_port_clicked_callback()
-        if (not self.is_open) and self.umi_robot_shared_memory_receiver.is_open():
-            self.log("Info::Connection established at {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
-
         current_is_open = self.umi_robot_shared_memory_receiver.is_open()
         if current_is_open is None:
             self.log("Warning::Error reading shared memory.")
             return
+
+        if self.is_open and not current_is_open:
+            self.log("Warning::Connection lost to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+            self._button_refresh_port_clicked_callback()
+        if (not self.is_open) and current_is_open:
+            self.log("Info::Connection established at {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+
         if current_is_open:
             self.is_open = True
             try:
