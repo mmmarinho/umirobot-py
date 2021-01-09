@@ -165,7 +165,7 @@ class UMIRobotMainWindow(QMainWindow):
     def _timer_callback(self):
         current_is_open = self.umi_robot_shared_memory_receiver.is_open()
         if current_is_open is None:
-            self.log("Warning::Error reading shared memory.")
+            self.log("Warning::Error reading shared memory. current_is_open = {}".format(current_is_open))
             return
 
         if self.is_open and not current_is_open:
@@ -304,9 +304,8 @@ class UMIRobotMainWindow(QMainWindow):
             self.log("Warning::Updated ports but no ports available.")
 
     @staticmethod
-    def run(arg1, arg2, arg3, arg4):
-        shared_memory_lists_tuple = (arg1, arg2, arg3, arg4)
-        umi_robot_shared_memory_receiver = UMIRobotSharedMemoryReceiver(shared_memory_lists_tuple)
+    def run(shared_memory_info, lock):
+        umi_robot_shared_memory_receiver = UMIRobotSharedMemoryReceiver(shared_memory_info, lock)
         app = QApplication([])
         myapp = UMIRobotMainWindow(umi_robot_shared_memory_receiver)
 

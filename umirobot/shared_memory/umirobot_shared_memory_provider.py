@@ -12,12 +12,19 @@ from umirobot.shared_memory.umirobot_shared_memory_common import shared_memory_m
 
 
 class UMIRobotSharedMemoryProvider:
-    def __init__(self, shared_memory_manager, dofs=6, n_potentiometers=6):
+    def __init__(self, shared_memory_manager, lock, dofs=6, n_potentiometers=6):
+        self.shared_memory_manager = shared_memory_manager
+        self.lock = lock
         self.dofs = dofs
         self.n_potentiometers = n_potentiometers
         self.connection_information_dict = shared_memory_map
         self.connection_information = shared_memory_manager.ShareableList(
-            [dofs, n_potentiometers, False, None, False, False]
+            [dofs,
+             n_potentiometers,
+             False,
+             "                                               ",
+             False,
+             False]
         )
         self.shareable_q = shared_memory_manager.ShareableList(
             [None]*dofs
@@ -51,17 +58,19 @@ class UMIRobotSharedMemoryProvider:
         return list(self.shareable_qd)
 
     def send_is_open(self, is_open):
+        self.lock.acquire()
         self.connection_information[self.connection_information_dict['is_open']] = is_open
+        self.lock.release()
 
     def get_port(self):
-        return list(self.connection_information)[self.connection_information_dict['port']]
+        return self.connection_information[self.connection_information_dict['port']]
 
     def get_port_connect_signal(self):
-        return list(self.connection_information)[self.connection_information_dict['port_connect_signal']]
+        return self.connection_information[self.connection_information_dict['port_connect_signal']]
 
     def send_port_connect_signal(self, port_connect_signal):
         self.connection_information[self.connection_information_dict['port_connect_signal']] = port_connect_signal
 
     def get_shutdown_flag(self):
-        return list(self.connection_information)[self.connection_information_dict['shutdown_flag']]
+        return self.connection_information[self.connection_information_dict['shutdown_flag']]
 

@@ -12,11 +12,12 @@ from umirobot.shared_memory.umirobot_shared_memory_common import shared_memory_m
 
 
 class UMIRobotSharedMemoryReceiver:
-    def __init__(self, shared_memory_lists_tuple):
+    def __init__(self, shared_memory_lists_tuple, lock):
         self.connection_information_dict = shared_memory_map
         self.connection_information, self.shareable_q, self.shareable_qd, self.shareable_potentiometer_values = shared_memory_lists_tuple
         self.dofs = len(self.shareable_q)
         self.n_potentiometers = len(self.shareable_potentiometer_values)
+        self.lock = lock
 
     def send_qd(self, qd):
         if qd is not None:
@@ -31,11 +32,10 @@ class UMIRobotSharedMemoryReceiver:
         return list(self.shareable_potentiometer_values)
 
     def is_open(self):
-        try:
-            return list(self.connection_information)[self.connection_information_dict['is_open']]
-        except Exception as e:
-            print("UMIRobotSharedMemoryReceiver::is_open::Issue reading shared memory.")
-            return None
+        self.lock.acquire()
+        is_open = self.connection_information[self.connection_information_dict['is_open']]
+        self.lock.release()
+        return is_open
 
     def send_port(self, port):
         if not self.connection_information[self.connection_information_dict['port_connect_signal']]:
@@ -45,7 +45,7 @@ class UMIRobotSharedMemoryReceiver:
             print("UMIRobotSharedMemoryReceiver::send_port::Unable to send port.")
 
     def get_port(self):
-        return list(self.connection_information)[self.connection_information_dict['port']]
+        return self.connection_information[self.connection_information_dict['port']]
 
     def send_shutdown_flag(self, flag):
         self.connection_information[self.connection_information_dict['shutdown_flag']] = flag

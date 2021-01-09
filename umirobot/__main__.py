@@ -16,15 +16,16 @@ from umirobot import UMIRobot
 from umirobot.shared_memory import UMIRobotSharedMemoryProvider
 from umirobot.gui import UMIRobotMainWindow
 
-
 if __name__ == '__main__':
     with UMIRobot() as umirobot, mm.SharedMemoryManager() as smm:
+        # Lock
+        lock = mp.Lock()
         # Provider
-        shared_memory_provider = UMIRobotSharedMemoryProvider(shared_memory_manager=smm)
+        shared_memory_provider = UMIRobotSharedMemoryProvider(shared_memory_manager=smm, lock=lock)
         # Receiver
         shared_memory_receiver_process = mp.Process(
             target=UMIRobotMainWindow.run,
-            args=(shared_memory_provider.get_shared_memory_receiver_initializer_args())
+            args=[shared_memory_provider.get_shared_memory_receiver_initializer_args(), lock]
         )
         shared_memory_receiver_process.start()
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
                     break
 
         except Exception as e:
-            print('umirobot_server::Error::'+str(e))
+            print('umirobot_server::Error::' + str(e))
         except KeyboardInterrupt:
             print('umirobot_server::Info::Shutdown by CTRL+C.')
         shared_memory_receiver_process.join()
