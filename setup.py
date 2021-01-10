@@ -30,6 +30,6 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     python_requires='>=3.8',
-    package_data={'umirobot.gui':['icon.png','umirobot.png']},
+    package_data={'umirobot.gui': ['icon.png', 'umirobot.png']},
     include_package_data=True
 )
