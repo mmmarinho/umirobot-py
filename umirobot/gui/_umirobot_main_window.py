@@ -10,6 +10,10 @@ see <https://www.gnu.org/licenses/>.
 """
 import os
 
+if os.name == 'nt':
+    import ctypes
+    import qdarkstyle
+
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap, QIcon
@@ -309,15 +313,15 @@ class UMIRobotMainWindow(QMainWindow):
         app = QApplication([])
         myapp = UMIRobotMainWindow(umi_robot_shared_memory_receiver)
 
-        # https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
+        # Set app icon
         path = os.path.dirname(os.path.abspath(__file__))
         app.setWindowIcon(QIcon(os.path.join(path, 'icon.png')))
+
+        # Set theme for Windows and fix icon not showing on taskbar
         if os.name == 'nt':
-            import qdarkstyle
             myapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
-            import ctypes
-            myappid = 'utokyo.umirobot'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            # https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('utokyo.umirobot')
 
         myapp.show()
 
