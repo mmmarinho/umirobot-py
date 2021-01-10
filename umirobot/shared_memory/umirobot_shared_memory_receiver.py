@@ -36,7 +36,7 @@ class UMIRobotSharedMemoryReceiver:
     def get_potentiometer_values(self):
         self.lock.acquire()
         potentiometer_values = list(self.shareable_potentiometer_values)
-        self.lock.relase()
+        self.lock.release()
         return potentiometer_values
 
     def is_open(self):
