@@ -46,11 +46,13 @@ class UMIRobotSharedMemoryReceiver:
         return is_open
 
     def send_port(self, port):
+        self.lock.acquire()
         if not self.connection_information[self.connection_information_dict['port_connect_signal']]:
             self.connection_information[self.connection_information_dict['port']] = port
             self.connection_information[self.connection_information_dict['port_connect_signal']] = True
         else:
             print("UMIRobotSharedMemoryReceiver::send_port::Unable to send port.")
+        self.lock.release()
 
     def get_port(self):
         self.lock.acquire()
