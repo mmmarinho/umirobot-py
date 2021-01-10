@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>481</height>
+    <width>975</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -365,7 +365,7 @@
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label_pot_0">
             <property name="text">
-             <string>pot0</string>
+             <string>qd0</string>
             </property>
            </widget>
           </item>
@@ -386,21 +386,21 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_pot_2">
             <property name="text">
-             <string>pot2</string>
+             <string>qd2</string>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_pot_3">
             <property name="text">
-             <string>pot3</string>
+             <string>qd3</string>
             </property>
            </widget>
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="label_pot_5">
             <property name="text">
-             <string>pot5</string>
+             <string>qd5</string>
             </property>
            </widget>
           </item>
@@ -428,14 +428,14 @@
           <item row="1" column="0" colspan="2">
            <widget class="QLabel" name="label_pot_1">
             <property name="text">
-             <string>pot1</string>
+             <string>qd1</string>
             </property>
            </widget>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_pot_4">
             <property name="text">
-             <string>pot4</string>
+             <string>qd4</string>
             </property>
            </widget>
           </item>
@@ -816,13 +816,20 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QPushButton" name="button_connect_port">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="0">
         <widget class="QComboBox" name="combobox_port"/>
        </item>
        <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="button_connect_port">
+        <widget class="QLabel" name="label_connection_status">
          <property name="text">
-          <string>Connect</string>
+          <string>Disconnected.</string>
          </property>
         </widget>
        </item>
@@ -856,8 +863,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>788</width>
-     <height>21</height>
+     <width>975</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>

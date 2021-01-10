@@ -180,6 +180,7 @@ class UMIRobotMainWindow(QMainWindow):
 
         if current_is_open:
             self.is_open = True
+            self.ui.label_connection_status.setText("Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
             try:
                 q = self.umi_robot_shared_memory_receiver.get_q()
                 self.ui.lineedit_q_0.setText(str(q[0]))
@@ -272,6 +273,7 @@ class UMIRobotMainWindow(QMainWindow):
                 self.log("Error::_timer_callback" + str(e))
         else:
             self.is_open = False
+            self.ui.label_connection_status.setText("Disconnected.")
 
     def _are_potentiometers_calibrated(self):
         if self.ui.radio_pot_0.isChecked() and \
@@ -292,7 +294,7 @@ class UMIRobotMainWindow(QMainWindow):
             return
         if current_selected_port != "":
             self.umi_robot_shared_memory_receiver.send_port(current_selected_port)
-            self.log("Info::Connecting to {}...".format(current_selected_port))
+            self.log("Info::Requesting connection to {}...".format(current_selected_port))
         else:
             self.log("Warning::No port selected.")
 
@@ -306,6 +308,8 @@ class UMIRobotMainWindow(QMainWindow):
                 self.log("Info::Arduino Uno found at {}.".format(port.name))
         if len(ports_list) == 0:
             self.log("Warning::Updated ports but no ports available.")
+        else:
+            self.log("Info::Found {} serial ports.".format(len(ports_list)))
 
     @staticmethod
     def run(shared_memory_info, lock):
