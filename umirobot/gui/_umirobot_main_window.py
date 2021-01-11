@@ -17,6 +17,7 @@ if os.name == 'nt':
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress
 
 from umirobot.shared_memory import UMIRobotSharedMemoryReceiver
 from umirobot.gui._umirobot_main_window_ui import Ui_MainWindow
@@ -41,7 +42,15 @@ class UMIRobotMainWindow(QMainWindow):
         self.pot_max = [None] * 6
         self.potentiometer_calibration_difference = 3.0
 
-        self.teleoperation_qd = [None] * 6;
+        self.potentiometer_qd = [None] * 6
+        self.socket_qd = [None] * 6
+
+        # TODO read socket info from config file
+        self.socket_ip = '127.0.0.1'
+        self.socket_port = 2222
+        self.socket = None
+        self.ui.lineedit_teleoperation_socket.setText(str(self.socket_ip + ":" + str(self.socket_port)))
+        self._connect_socket()
 
         # Fix robot figure not showing
         # https://stackoverflow.com/questions/33454555/bind-relative-image-path-to-py-file
@@ -86,6 +95,15 @@ class UMIRobotMainWindow(QMainWindow):
 
     def log(self, msg):
         self.ui.textedit_status.append(msg)
+
+    def _connect_socket(self):
+        self.socket = QUdpSocket()
+        self.socket.bind(QHostAddress(self.socket_ip), self.socket_port)
+        self.socket.readyRead.connect(self._socket_ready_read_callback)
+
+    def _socket_ready_read_callback(self):
+        # TODO Read datagram
+        pass
 
     def _get_manual_control_increment(self):
         return self.ui.slider_manual_control.value()
@@ -180,7 +198,8 @@ class UMIRobotMainWindow(QMainWindow):
 
         if current_is_open:
             self.is_open = True
-            self.ui.label_connection_status.setText("Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+            self.ui.label_connection_status.setText(
+                "Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
             try:
                 q = self.umi_robot_shared_memory_receiver.get_q()
                 self.ui.lineedit_q_0.setText(str(q[0]))
@@ -194,14 +213,15 @@ class UMIRobotMainWindow(QMainWindow):
 
                 if self._are_potentiometers_calibrated():
                     for i in range(0, 6):
-                        self.teleoperation_qd[i] = int(float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i]))*120.0) - 60
+                        self.potentiometer_qd[i] = int(
+                            float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 120.0) - 60
 
-                self.ui.lineedit_pot_0.setText(str(self.teleoperation_qd[0]))
-                self.ui.lineedit_pot_1.setText(str(self.teleoperation_qd[1]))
-                self.ui.lineedit_pot_2.setText(str(self.teleoperation_qd[2]))
-                self.ui.lineedit_pot_3.setText(str(self.teleoperation_qd[3]))
-                self.ui.lineedit_pot_4.setText(str(self.teleoperation_qd[4]))
-                self.ui.lineedit_pot_5.setText(str(self.teleoperation_qd[5]))
+                self.ui.lineedit_pot_0.setText(str(self.potentiometer_qd[0]))
+                self.ui.lineedit_pot_1.setText(str(self.potentiometer_qd[1]))
+                self.ui.lineedit_pot_2.setText(str(self.potentiometer_qd[2]))
+                self.ui.lineedit_pot_3.setText(str(self.potentiometer_qd[3]))
+                self.ui.lineedit_pot_4.setText(str(self.potentiometer_qd[4]))
+                self.ui.lineedit_pot_5.setText(str(self.potentiometer_qd[5]))
 
                 if self.pot_min[0] is not None:
                     self.ui.lineedit_pot_min_0.setText("{0:.3g} V".format(self.pot_min[0]))
@@ -232,7 +252,7 @@ class UMIRobotMainWindow(QMainWindow):
                 if self.ui.checkbox_teleoperation.isChecked():
                     if self._are_potentiometers_calibrated():
                         for i in range(0, 6):
-                            self.qd[i] = self.teleoperation_qd[i]
+                            self.qd[i] = self.potentiometer_qd[i]
 
                 if self.ui.checkbox_potentiometer_cal.isChecked():
                     for i in range(0, 6):
@@ -332,7 +352,7 @@ class UMIRobotMainWindow(QMainWindow):
         try:
             app.exec_()
         except Exception as e:
-            print("umirobot_main_window::run::Error::"+str(e))
+            print("umirobot_main_window::run::Error::" + str(e))
         except KeyboardInterrupt:
             print("umirobot_main_window::run::Info::Interrupted by user.")
 

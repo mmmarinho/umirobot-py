@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>975</width>
-    <height>603</height>
+    <width>856</width>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -506,19 +506,6 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="6">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="1" column="2">
         <widget class="QLabel" name="label_2">
          <property name="text">
@@ -783,6 +770,52 @@
          </property>
         </widget>
        </item>
+       <item row="4" column="6">
+        <widget class="QFrame" name="frame_8">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radio_teleoperation_pot">
+            <property name="text">
+             <string>Potentiometer</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radio_teleoperation_socket">
+            <property name="text">
+             <string>Socket</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineedit_teleoperation_socket">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Defined in the configuration file.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -863,7 +896,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>975</width>
+     <width>856</width>
      <height>24</height>
     </rect>
    </property>
