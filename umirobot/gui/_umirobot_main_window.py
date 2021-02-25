@@ -10,9 +10,16 @@ see <https://www.gnu.org/licenses/>.
 """
 import os
 
-if os.name == 'nt':
+#  https://stackoverflow.com/questions/1854/python-what-os-am-i-running-on
+from sys import platform as _platform
+
+if _platform == 'win32':
     import ctypes
     import qdarkstyle
+elif _platform == 'darwin':
+    import glob
+else:
+    raise Exception('Unsupported platform ',_platform)
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -321,7 +328,11 @@ class UMIRobotMainWindow(QMainWindow):
     def _button_refresh_port_clicked_callback(self):
         import serial.tools.list_ports
         self.ui.combobox_port.clear()
-        ports_list = serial.tools.list_ports.comports()
+        if _platform == 'win32':
+            ports_list = serial.tools.list_ports.comports()
+        elif _platform == 'darwin':
+            # https://stackoverflow.com/questions/22467683/listing-serial-ports-in-mac-os-x-and-python-3
+            ports_list = glob.glob('/dev/tty.*')
         for port in ports_list:
             self.ui.combobox_port.addItem(str(port.name))
             if "Arduino Uno" in port.description:
@@ -342,7 +353,7 @@ class UMIRobotMainWindow(QMainWindow):
         app.setWindowIcon(QIcon(os.path.join(path, 'icon.png')))
 
         # Set theme for Windows and fix icon not showing on taskbar
-        if os.name == 'nt':
+        if _platform == 'win32':
             myapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
             # https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('utokyo.umirobot')
