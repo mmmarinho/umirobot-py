@@ -326,9 +326,9 @@ class UMIRobotMainWindow(QMainWindow):
             self.log("Warning::No port selected.")
 
     def _button_refresh_port_clicked_callback(self):
-        import serial.tools.list_ports
         self.ui.combobox_port.clear()
         if _platform == 'win32':
+            import serial.tools.list_ports
             ports_list = serial.tools.list_ports.comports()
             for port in ports_list:
                 self.ui.combobox_port.addItem(str(port.name))
@@ -338,7 +338,7 @@ class UMIRobotMainWindow(QMainWindow):
             # https://stackoverflow.com/questions/22467683/listing-serial-ports-in-mac-os-x-and-python-3
             ports_list = glob.glob('/dev/tty.*')
             for port in ports_list:
-                self.ui.combobox_port.addItem(port)
+                self.ui.combobox_port.addItem(str(port))
         if len(ports_list) == 0:
             self.log("Warning::Updated ports but no ports available.")
         else:
