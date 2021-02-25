@@ -330,13 +330,15 @@ class UMIRobotMainWindow(QMainWindow):
         self.ui.combobox_port.clear()
         if _platform == 'win32':
             ports_list = serial.tools.list_ports.comports()
+            for port in ports_list:
+                self.ui.combobox_port.addItem(str(port.name))
+                if "Arduino Uno" in port.description:
+                    self.log("Info::Arduino Uno found at {}.".format(port.name))
         elif _platform == 'darwin':
             # https://stackoverflow.com/questions/22467683/listing-serial-ports-in-mac-os-x-and-python-3
             ports_list = glob.glob('/dev/tty.*')
-        for port in ports_list:
-            self.ui.combobox_port.addItem(str(port.name))
-            if "Arduino Uno" in port.description:
-                self.log("Info::Arduino Uno found at {}.".format(port.name))
+            for port in ports_list:
+                self.ui.combobox_port.addItem(port)
         if len(ports_list) == 0:
             self.log("Warning::Updated ports but no ports available.")
         else:
