@@ -42,8 +42,8 @@ class UMIRobotMainWindow(QMainWindow):
         self.umi_robot_shared_memory_receiver = umi_robot_shared_memory_receiver
         self.is_open = False
         self.qd = [0, 0, 0, 0, 0, 0]
-        self.q_min = -60
-        self.q_max = 60
+        self.q_min = -90
+        self.q_max = 90
 
         self.pot_min = [None] * 6
         self.pot_max = [None] * 6
@@ -221,7 +221,7 @@ class UMIRobotMainWindow(QMainWindow):
                 if self._are_potentiometers_calibrated():
                     for i in range(0, 6):
                         self.potentiometer_qd[i] = int(
-                            float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 120.0) - 60
+                            float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 180.0) - 90
 
                 self.ui.lineedit_pot_0.setText(str(self.potentiometer_qd[0]))
                 self.ui.lineedit_pot_1.setText(str(self.potentiometer_qd[1]))
