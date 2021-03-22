@@ -1,4 +1,4 @@
-# UMIRobot Python
+# UMIRobot Python [![PyPI version](https://badge.fury.io/py/umirobot.svg)](https://badge.fury.io/py/umirobot) 
 
 The Python package to interact with the UMIRobot.
 
