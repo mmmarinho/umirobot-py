@@ -19,12 +19,14 @@ if _platform == 'win32':
 elif _platform == 'darwin':
     import glob
 else:
-    raise Exception('Unsupported platform ',_platform)
+    raise Exception('Unsupported platform ', _platform)
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtNetwork import QUdpSocket, QHostAddress
+
+from dqrobotics.interfaces.vrep import DQ_VrepInterface
+from dqrobotics.utils.DQ_Math import deg2rad, rad2deg
 
 from umirobot.shared_memory import UMIRobotSharedMemoryReceiver
 from umirobot.gui._umirobot_main_window_ui import Ui_MainWindow
@@ -50,14 +52,10 @@ class UMIRobotMainWindow(QMainWindow):
         self.potentiometer_calibration_difference = 3.0
 
         self.potentiometer_qd = [None] * 6
-        self.socket_qd = [None] * 6
 
-        # TODO read socket info from config file
-        self.socket_ip = '127.0.0.1'
-        self.socket_port = 2222
-        self.socket = None
-        self.ui.lineedit_teleoperation_socket.setText(str(self.socket_ip + ":" + str(self.socket_port)))
-        self._connect_socket()
+        self.vrep_interface = None
+        self.vrep_ip = str(self.ui.lineedit_vrep_ip.text())
+        self.vrep_port = int(self.ui.lineedit_vrep_port.text())
 
         # Fix robot figure not showing
         # https://stackoverflow.com/questions/33454555/bind-relative-image-path-to-py-file
@@ -100,20 +98,40 @@ class UMIRobotMainWindow(QMainWindow):
         self.ui.button_refresh_port.clicked.connect(self._button_refresh_port_clicked_callback)
         self._button_refresh_port_clicked_callback()
 
+        self.ui.button_connect_vrep.clicked.connect(self._button_connect_vrep_clicked_callback)
+        self.ui.checkbox_communication_coppeliasim.clicked.connect(self._checkbox_communication_vrep_clicked_callback)
+        self.ui.checkbox_communication_arduino.clicked.connect(self._checkbox_communication_arduino_clicked_callback)
+
     def log(self, msg):
         self.ui.textedit_status.append(msg)
 
-    def _connect_socket(self):
-        self.socket = QUdpSocket()
-        self.socket.bind(QHostAddress(self.socket_ip), self.socket_port)
-        self.socket.readyRead.connect(self._socket_ready_read_callback)
-
-    def _socket_ready_read_callback(self):
-        # TODO Read datagram
-        pass
+    def _button_connect_vrep_clicked_callback(self):
+        if self.ui.checkbox_communication_coppeliasim.isChecked():
+            if self.vrep_interface is None:
+                try:
+                    self.vrep_interface = DQ_VrepInterface()
+                    self.vrep_ip = str(self.ui.lineedit_vrep_ip.text())
+                    self.vrep_port = int(self.ui.lineedit_vrep_port.text())
+                    if not self.vrep_interface.connect(self.vrep_ip, self.vrep_port, 100, 10):
+                        raise RuntimeError("Unable to connect to {}:{}.".format(self.vrep_ip, self.vrep_port))
+                    self.ui.label_connection_status_vrep.setText("Connected.")
+                except Exception as e:
+                    self.vrep_interface.disconnect_all()
+                    self.log("Error::_button_connect_vrep_pressed" + str(e))
+                    self.vrep_interface = None
 
     def _get_manual_control_increment(self):
         return self.ui.slider_manual_control.value()
+
+    def _checkbox_communication_arduino_clicked_callback(self):
+        if self.ui.checkbox_communication_arduino.isChecked():
+            self.log("Info::Switched mode to Arduino communication.")
+            self.ui.checkbox_communication_coppeliasim.setChecked(False)
+
+    def _checkbox_communication_vrep_clicked_callback(self):
+        if self.ui.checkbox_communication_coppeliasim.isChecked():
+            self.log("Info::Switched mode to CoppeliaSim communication.")
+            self.ui.checkbox_communication_arduino.setChecked(False)
 
     def _slider_manual_control_value_changed_callback(self):
         self.ui.label_manual_control_angle_change.setText(
@@ -192,115 +210,143 @@ class UMIRobotMainWindow(QMainWindow):
             self.ui.checkbox_teleoperation.setChecked(False)
 
     def _timer_callback(self):
-        current_is_open = self.umi_robot_shared_memory_receiver.is_open()
-        if current_is_open is None:
-            self.log("Warning::Error reading shared memory. current_is_open = {}".format(current_is_open))
-            return
 
-        if self.is_open and not current_is_open:
-            self.log("Warning::Connection lost to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
-            self._button_refresh_port_clicked_callback()
-        if (not self.is_open) and current_is_open:
-            self.log("Info::Connection established at {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+        # CoppeliaSim communication
+        if self.ui.checkbox_communication_coppeliasim.isChecked():
+            if self.vrep_interface is not None:
+                try:
+                    vrep_joint_names = ['UMIRobot_joint_1',
+                                        'UMIRobot_joint_2',
+                                        'UMIRobot_joint_3',
+                                        'UMIRobot_joint_4']
+                    q = rad2deg(self.vrep_interface.get_joint_positions(vrep_joint_names))
+                    self.ui.lineedit_q_0.setText(f"{q[0]:.1f}")
+                    self.ui.lineedit_q_1.setText(f"{q[1]:.1f}")
+                    self.ui.lineedit_q_2.setText(f"{q[2]:.1f}")
+                    self.ui.lineedit_q_3.setText(f"{q[3]:.1f}")
+                    #self.ui.lineedit_q_4.setText(str(q[4]))
+                    #self.ui.lineedit_q_5.setText(str(q[5]))
 
-        if current_is_open:
-            self.is_open = True
-            self.ui.label_connection_status.setText(
-                "Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
-            try:
-                q = self.umi_robot_shared_memory_receiver.get_q()
-                self.ui.lineedit_q_0.setText(str(q[0]))
-                self.ui.lineedit_q_1.setText(str(q[1]))
-                self.ui.lineedit_q_2.setText(str(q[2]))
-                self.ui.lineedit_q_3.setText(str(q[3]))
-                self.ui.lineedit_q_4.setText(str(q[4]))
-                self.ui.lineedit_q_5.setText(str(q[5]))
+                    self.vrep_interface.set_joint_target_positions(vrep_joint_names, deg2rad(self.qd[0:4]))
 
-                potentiometer_values = self.umi_robot_shared_memory_receiver.get_potentiometer_values()
 
-                if self._are_potentiometers_calibrated():
-                    for i in range(0, 6):
-                        self.potentiometer_qd[i] = int(
-                            float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 180.0) - 90
 
-                self.ui.lineedit_pot_0.setText(str(self.potentiometer_qd[0]))
-                self.ui.lineedit_pot_1.setText(str(self.potentiometer_qd[1]))
-                self.ui.lineedit_pot_2.setText(str(self.potentiometer_qd[2]))
-                self.ui.lineedit_pot_3.setText(str(self.potentiometer_qd[3]))
-                self.ui.lineedit_pot_4.setText(str(self.potentiometer_qd[4]))
-                self.ui.lineedit_pot_5.setText(str(self.potentiometer_qd[5]))
+                except Exception as e:
+                    self.log("Error::_timer_callback" + str(e))
 
-                if self.pot_min[0] is not None:
-                    self.ui.lineedit_pot_min_0.setText("{0:.3g} V".format(self.pot_min[0]))
-                if self.pot_min[1] is not None:
-                    self.ui.lineedit_pot_min_1.setText("{0:.3g} V".format(self.pot_min[1]))
-                if self.pot_min[2] is not None:
-                    self.ui.lineedit_pot_min_2.setText("{0:.3g} V".format(self.pot_min[2]))
-                if self.pot_min[3] is not None:
-                    self.ui.lineedit_pot_min_3.setText("{0:.3g} V".format(self.pot_min[3]))
-                if self.pot_min[4] is not None:
-                    self.ui.lineedit_pot_min_4.setText("{0:.3g} V".format(self.pot_min[4]))
-                if self.pot_min[5] is not None:
-                    self.ui.lineedit_pot_min_5.setText("{0:.3g} V".format(self.pot_min[5]))
+        # Arduino communication
+        else:
+            current_serial_is_open = self.umi_robot_shared_memory_receiver.is_open()
+            # Serial port communication
+            if current_serial_is_open is None:
+                self.log(
+                    "Warning::Error reading shared memory. current_serial_is_open = {}".format(current_serial_is_open))
+                return
 
-                if self.pot_max[0] is not None:
-                    self.ui.lineedit_pot_max_0.setText("{0:.3g} V".format(self.pot_max[0]))
-                if self.pot_max[1] is not None:
-                    self.ui.lineedit_pot_max_1.setText("{0:.3g} V".format(self.pot_max[1]))
-                if self.pot_max[2] is not None:
-                    self.ui.lineedit_pot_max_2.setText("{0:.3g} V".format(self.pot_max[2]))
-                if self.pot_max[3] is not None:
-                    self.ui.lineedit_pot_max_3.setText("{0:.3g} V".format(self.pot_max[3]))
-                if self.pot_max[4] is not None:
-                    self.ui.lineedit_pot_max_4.setText("{0:.3g} V".format(self.pot_max[4]))
-                if self.pot_max[5] is not None:
-                    self.ui.lineedit_pot_max_5.setText("{0:.3g} V".format(self.pot_max[5]))
+            if self.is_open and not current_serial_is_open:
+                self.log("Warning::Connection lost to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+                self._button_refresh_port_clicked_callback()
+            if (not self.is_open) and current_serial_is_open:
+                self.log("Info::Connection established at {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
 
-                if self.ui.checkbox_teleoperation.isChecked():
+            if current_serial_is_open:
+                self.is_open = True
+                self.ui.label_connection_status.setText(
+                    "Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
+                try:
+                    q = self.umi_robot_shared_memory_receiver.get_q()
+                    self.ui.lineedit_q_0.setText(str(q[0]))
+                    self.ui.lineedit_q_1.setText(str(q[1]))
+                    self.ui.lineedit_q_2.setText(str(q[2]))
+                    self.ui.lineedit_q_3.setText(str(q[3]))
+                    self.ui.lineedit_q_4.setText(str(q[4]))
+                    self.ui.lineedit_q_5.setText(str(q[5]))
+
+                    potentiometer_values = self.umi_robot_shared_memory_receiver.get_potentiometer_values()
+
                     if self._are_potentiometers_calibrated():
                         for i in range(0, 6):
-                            self.qd[i] = self.potentiometer_qd[i]
+                            self.potentiometer_qd[i] = int(
+                                float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 180.0) - 90
 
-                if self.ui.checkbox_potentiometer_cal.isChecked():
-                    for i in range(0, 6):
-                        if self.pot_min[i] is None:
-                            self.pot_min[i] = potentiometer_values[i]
-                        if self.pot_max[i] is None:
-                            self.pot_max[i] = potentiometer_values[i]
+                    self.ui.lineedit_pot_0.setText(str(self.potentiometer_qd[0]))
+                    self.ui.lineedit_pot_1.setText(str(self.potentiometer_qd[1]))
+                    self.ui.lineedit_pot_2.setText(str(self.potentiometer_qd[2]))
+                    self.ui.lineedit_pot_3.setText(str(self.potentiometer_qd[3]))
+                    self.ui.lineedit_pot_4.setText(str(self.potentiometer_qd[4]))
+                    self.ui.lineedit_pot_5.setText(str(self.potentiometer_qd[5]))
 
-                    self.pot_min[0] = min(self.pot_min[0], potentiometer_values[0])
-                    self.pot_min[1] = min(self.pot_min[1], potentiometer_values[1])
-                    self.pot_min[2] = min(self.pot_min[2], potentiometer_values[2])
-                    self.pot_min[3] = min(self.pot_min[3], potentiometer_values[3])
-                    self.pot_min[4] = min(self.pot_min[4], potentiometer_values[4])
-                    self.pot_min[5] = min(self.pot_min[5], potentiometer_values[5])
+                    if self.pot_min[0] is not None:
+                        self.ui.lineedit_pot_min_0.setText("{0:.3g} V".format(self.pot_min[0]))
+                    if self.pot_min[1] is not None:
+                        self.ui.lineedit_pot_min_1.setText("{0:.3g} V".format(self.pot_min[1]))
+                    if self.pot_min[2] is not None:
+                        self.ui.lineedit_pot_min_2.setText("{0:.3g} V".format(self.pot_min[2]))
+                    if self.pot_min[3] is not None:
+                        self.ui.lineedit_pot_min_3.setText("{0:.3g} V".format(self.pot_min[3]))
+                    if self.pot_min[4] is not None:
+                        self.ui.lineedit_pot_min_4.setText("{0:.3g} V".format(self.pot_min[4]))
+                    if self.pot_min[5] is not None:
+                        self.ui.lineedit_pot_min_5.setText("{0:.3g} V".format(self.pot_min[5]))
 
-                    self.pot_max[0] = max(self.pot_max[0], potentiometer_values[0])
-                    self.pot_max[1] = max(self.pot_max[1], potentiometer_values[1])
-                    self.pot_max[2] = max(self.pot_max[2], potentiometer_values[2])
-                    self.pot_max[3] = max(self.pot_max[3], potentiometer_values[3])
-                    self.pot_max[4] = max(self.pot_max[4], potentiometer_values[4])
-                    self.pot_max[5] = max(self.pot_max[5], potentiometer_values[5])
+                    if self.pot_max[0] is not None:
+                        self.ui.lineedit_pot_max_0.setText("{0:.3g} V".format(self.pot_max[0]))
+                    if self.pot_max[1] is not None:
+                        self.ui.lineedit_pot_max_1.setText("{0:.3g} V".format(self.pot_max[1]))
+                    if self.pot_max[2] is not None:
+                        self.ui.lineedit_pot_max_2.setText("{0:.3g} V".format(self.pot_max[2]))
+                    if self.pot_max[3] is not None:
+                        self.ui.lineedit_pot_max_3.setText("{0:.3g} V".format(self.pot_max[3]))
+                    if self.pot_max[4] is not None:
+                        self.ui.lineedit_pot_max_4.setText("{0:.3g} V".format(self.pot_max[4]))
+                    if self.pot_max[5] is not None:
+                        self.ui.lineedit_pot_max_5.setText("{0:.3g} V".format(self.pot_max[5]))
 
-                    if abs(self.pot_min[0] - self.pot_max[0]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_0.setChecked(True)
-                    if abs(self.pot_min[1] - self.pot_max[1]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_1.setChecked(True)
-                    if abs(self.pot_min[2] - self.pot_max[2]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_2.setChecked(True)
-                    if abs(self.pot_min[3] - self.pot_max[3]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_3.setChecked(True)
-                    if abs(self.pot_min[4] - self.pot_max[4]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_4.setChecked(True)
-                    if abs(self.pot_min[5] - self.pot_max[5]) > self.potentiometer_calibration_difference:
-                        self.ui.radio_pot_5.setChecked(True)
+                    if self.ui.checkbox_teleoperation.isChecked():
+                        if self._are_potentiometers_calibrated():
+                            for i in range(0, 6):
+                                self.qd[i] = self.potentiometer_qd[i]
 
-                self.umi_robot_shared_memory_receiver.send_qd(self.qd)
-            except Exception as e:
-                self.log("Error::_timer_callback" + str(e))
-        else:
-            self.is_open = False
-            self.ui.label_connection_status.setText("Disconnected.")
+                    if self.ui.checkbox_potentiometer_cal.isChecked():
+                        for i in range(0, 6):
+                            if self.pot_min[i] is None:
+                                self.pot_min[i] = potentiometer_values[i]
+                            if self.pot_max[i] is None:
+                                self.pot_max[i] = potentiometer_values[i]
+
+                        self.pot_min[0] = min(self.pot_min[0], potentiometer_values[0])
+                        self.pot_min[1] = min(self.pot_min[1], potentiometer_values[1])
+                        self.pot_min[2] = min(self.pot_min[2], potentiometer_values[2])
+                        self.pot_min[3] = min(self.pot_min[3], potentiometer_values[3])
+                        self.pot_min[4] = min(self.pot_min[4], potentiometer_values[4])
+                        self.pot_min[5] = min(self.pot_min[5], potentiometer_values[5])
+
+                        self.pot_max[0] = max(self.pot_max[0], potentiometer_values[0])
+                        self.pot_max[1] = max(self.pot_max[1], potentiometer_values[1])
+                        self.pot_max[2] = max(self.pot_max[2], potentiometer_values[2])
+                        self.pot_max[3] = max(self.pot_max[3], potentiometer_values[3])
+                        self.pot_max[4] = max(self.pot_max[4], potentiometer_values[4])
+                        self.pot_max[5] = max(self.pot_max[5], potentiometer_values[5])
+
+                        if abs(self.pot_min[0] - self.pot_max[0]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_0.setChecked(True)
+                        if abs(self.pot_min[1] - self.pot_max[1]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_1.setChecked(True)
+                        if abs(self.pot_min[2] - self.pot_max[2]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_2.setChecked(True)
+                        if abs(self.pot_min[3] - self.pot_max[3]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_3.setChecked(True)
+                        if abs(self.pot_min[4] - self.pot_max[4]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_4.setChecked(True)
+                        if abs(self.pot_min[5] - self.pot_max[5]) > self.potentiometer_calibration_difference:
+                            self.ui.radio_pot_5.setChecked(True)
+
+                    self.umi_robot_shared_memory_receiver.send_qd(self.qd)
+                except Exception as e:
+                    self.log("Error::_timer_callback" + str(e))
+            else:
+                self.is_open = False
+                self.ui.label_connection_status.setText("Disconnected.")
 
     def _are_potentiometers_calibrated(self):
         if self.ui.radio_pot_0.isChecked() and \
