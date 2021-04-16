@@ -114,7 +114,6 @@ class UMIRobotMainWindow(QMainWindow):
                     self.vrep_port = int(self.ui.lineedit_vrep_port.text())
                     if not self.vrep_interface.connect(self.vrep_ip, self.vrep_port, 100, 10):
                         raise RuntimeError("Unable to connect to {}:{}.".format(self.vrep_ip, self.vrep_port))
-                    self.ui.label_connection_status_vrep.setText("Connected.")
                 except Exception as e:
                     self.vrep_interface.disconnect_all()
                     self.log("Error::_button_connect_vrep_pressed" + str(e))
@@ -123,15 +122,25 @@ class UMIRobotMainWindow(QMainWindow):
     def _get_manual_control_increment(self):
         return self.ui.slider_manual_control.value()
 
+    def _communication_mode_switch_reset(self):
+        self.is_open = False
+        self.qd = [0, 0, 0, 0, 0, 0]
+        self.q = [None] * 6
+
     def _checkbox_communication_arduino_clicked_callback(self):
         if self.ui.checkbox_communication_arduino.isChecked():
             self.log("Info::Switched mode to Arduino communication.")
             self.ui.checkbox_communication_coppeliasim.setChecked(False)
+            self._communication_mode_switch_reset()
+            if self.vrep_interface is not None:
+                self.vrep_interface.disconnect()
+                self.vrep_interface = None
 
     def _checkbox_communication_vrep_clicked_callback(self):
         if self.ui.checkbox_communication_coppeliasim.isChecked():
             self.log("Info::Switched mode to CoppeliaSim communication.")
             self.ui.checkbox_communication_arduino.setChecked(False)
+            self._communication_mode_switch_reset()
 
     def _slider_manual_control_value_changed_callback(self):
         self.ui.label_manual_control_angle_change.setText(
@@ -210,26 +219,32 @@ class UMIRobotMainWindow(QMainWindow):
             self.ui.checkbox_teleoperation.setChecked(False)
 
     def _timer_callback(self):
+        # Connection status (CoppeliaSim)
+        if self.vrep_interface is None:
+            self.ui.label_connection_status_vrep.setText("Disconnected.")
+        else:
+            self.ui.label_connection_status_vrep.setText("Connected.")
 
         # CoppeliaSim communication
         if self.ui.checkbox_communication_coppeliasim.isChecked():
             if self.vrep_interface is not None:
+
                 try:
                     vrep_joint_names = ['UMIRobot_joint_1',
                                         'UMIRobot_joint_2',
                                         'UMIRobot_joint_3',
-                                        'UMIRobot_joint_4']
+                                        'UMIRobot_joint_4',
+                                        'UMIRobot_joint_5',
+                                        'UMIRobot_joint_6']
                     q = rad2deg(self.vrep_interface.get_joint_positions(vrep_joint_names))
                     self.ui.lineedit_q_0.setText(f"{q[0]:.1f}")
                     self.ui.lineedit_q_1.setText(f"{q[1]:.1f}")
                     self.ui.lineedit_q_2.setText(f"{q[2]:.1f}")
                     self.ui.lineedit_q_3.setText(f"{q[3]:.1f}")
-                    #self.ui.lineedit_q_4.setText(str(q[4]))
-                    #self.ui.lineedit_q_5.setText(str(q[5]))
+                    self.ui.lineedit_q_4.setText(f"{q[4]:.1f}")
+                    self.ui.lineedit_q_5.setText(f"{q[5]:.1f}")
 
-                    self.vrep_interface.set_joint_target_positions(vrep_joint_names, deg2rad(self.qd[0:4]))
-
-
+                    self.vrep_interface.set_joint_target_positions(vrep_joint_names, deg2rad(self.qd))
 
                 except Exception as e:
                     self.log("Error::_timer_callback" + str(e))
