@@ -100,7 +100,10 @@ class UMIRobotMainWindow(QMainWindow):
 
         self.ui.button_connect_vrep.clicked.connect(self._button_connect_vrep_clicked_callback)
         self.ui.checkbox_communication_coppeliasim.clicked.connect(self._checkbox_communication_vrep_clicked_callback)
-        self.ui.checkbox_communication_arduino.clicked.connect(self._checkbox_communication_arduino_clicked_callback)
+        self.ui.checkbox_communication_arduino_all.clicked.connect(
+            self._checkbox_communication_arduino_all_clicked_callback)
+        self.ui.checkbox_communication_arduino_master_only.clicked.connect(
+            self._checkbox_communication_arduino_master_only_clicked_callback)
 
     def log(self, msg):
         self.ui.textedit_status.append(msg)
@@ -127,19 +130,28 @@ class UMIRobotMainWindow(QMainWindow):
         self.qd = [0, 0, 0, 0, 0, 0]
         self.q = [None] * 6
 
-    def _checkbox_communication_arduino_clicked_callback(self):
-        if self.ui.checkbox_communication_arduino.isChecked():
-            self.log("Info::Switched mode to Arduino communication.")
+    def _checkbox_communication_arduino_all_clicked_callback(self):
+        if self.ui.checkbox_communication_arduino_all.isChecked():
+            self._reset_control_modes()
+            self.log("Info::Switched mode to Arduino communication (All).")
             self.ui.checkbox_communication_coppeliasim.setChecked(False)
+            self.ui.checkbox_communication_arduino_master_only.setChecked(False)
             self._communication_mode_switch_reset()
             if self.vrep_interface is not None:
                 self.vrep_interface.disconnect()
                 self.vrep_interface = None
 
+    def _checkbox_communication_arduino_master_only_clicked_callback(self):
+        if self.ui.checkbox_communication_arduino_master_only.isChecked():
+            self._reset_control_modes()
+            self.log("Info::Switched mode to Arduino communication (Master only).")
+            self.ui.checkbox_communication_arduino_all.setChecked(False)
+            self._communication_mode_switch_reset()
+
     def _checkbox_communication_vrep_clicked_callback(self):
         if self.ui.checkbox_communication_coppeliasim.isChecked():
             self.log("Info::Switched mode to CoppeliaSim communication.")
-            self.ui.checkbox_communication_arduino.setChecked(False)
+            self.ui.checkbox_communication_arduino_all.setChecked(False)
             self._communication_mode_switch_reset()
 
     def _slider_manual_control_value_changed_callback(self):
@@ -200,6 +212,12 @@ class UMIRobotMainWindow(QMainWindow):
     def _get_teleoperation_state(self):
         return self.ui.checkbox_teleoperation.isChecked()
 
+    def _reset_control_modes(self):
+        self.log("Info::Reset control modes.")
+        self.ui.checkbox_teleoperation.setChecked(False)
+        self.ui.checkbox_potentiometer_cal.setChecked(False)
+        self.ui.checkbox_jointcontrol.setChecked(False)
+
     def _checkbox_manual_control_clicked_callback(self):
         if self.ui.checkbox_jointcontrol.isChecked():
             self.log("Info::Switched mode to manual control.")
@@ -249,8 +267,9 @@ class UMIRobotMainWindow(QMainWindow):
                 except Exception as e:
                     self.log("Error::_timer_callback" + str(e))
 
-        # Arduino communication
-        else:
+        if self.ui.checkbox_communication_arduino_all.isChecked() or \
+                self.ui.checkbox_communication_arduino_master_only.isChecked():
+            # Arduino communication
             current_serial_is_open = self.umi_robot_shared_memory_receiver.is_open()
             # Serial port communication
             if current_serial_is_open is None:
@@ -269,13 +288,14 @@ class UMIRobotMainWindow(QMainWindow):
                 self.ui.label_connection_status.setText(
                     "Connected to {}.".format(self.umi_robot_shared_memory_receiver.get_port()))
                 try:
-                    q = self.umi_robot_shared_memory_receiver.get_q()
-                    self.ui.lineedit_q_0.setText(str(q[0]))
-                    self.ui.lineedit_q_1.setText(str(q[1]))
-                    self.ui.lineedit_q_2.setText(str(q[2]))
-                    self.ui.lineedit_q_3.setText(str(q[3]))
-                    self.ui.lineedit_q_4.setText(str(q[4]))
-                    self.ui.lineedit_q_5.setText(str(q[5]))
+                    if self.ui.checkbox_communication_arduino_all.isChecked():
+                        q = self.umi_robot_shared_memory_receiver.get_q()
+                        self.ui.lineedit_q_0.setText(str(q[0]))
+                        self.ui.lineedit_q_1.setText(str(q[1]))
+                        self.ui.lineedit_q_2.setText(str(q[2]))
+                        self.ui.lineedit_q_3.setText(str(q[3]))
+                        self.ui.lineedit_q_4.setText(str(q[4]))
+                        self.ui.lineedit_q_5.setText(str(q[5]))
 
                     potentiometer_values = self.umi_robot_shared_memory_receiver.get_potentiometer_values()
 
@@ -284,12 +304,25 @@ class UMIRobotMainWindow(QMainWindow):
                             self.potentiometer_qd[i] = int(
                                 float(potentiometer_values[i] / (self.pot_max[i] - self.pot_min[i])) * 180.0) - 90
 
-                    self.ui.lineedit_pot_0.setText(str(self.potentiometer_qd[0]))
-                    self.ui.lineedit_pot_1.setText(str(self.potentiometer_qd[1]))
-                    self.ui.lineedit_pot_2.setText(str(self.potentiometer_qd[2]))
-                    self.ui.lineedit_pot_3.setText(str(self.potentiometer_qd[3]))
-                    self.ui.lineedit_pot_4.setText(str(self.potentiometer_qd[4]))
-                    self.ui.lineedit_pot_5.setText(str(self.potentiometer_qd[5]))
+                    self.ui.lineedit_teleop_0.setText(str(self.potentiometer_qd[0]))
+                    self.ui.lineedit_teleop_1.setText(str(self.potentiometer_qd[1]))
+                    self.ui.lineedit_teleop_2.setText(str(self.potentiometer_qd[2]))
+                    self.ui.lineedit_teleop_4.setText(str(self.potentiometer_qd[3]))
+                    self.ui.lineedit_teleop_3.setText(str(self.potentiometer_qd[4]))
+                    self.ui.lineedit_teleop_5.setText(str(self.potentiometer_qd[5]))
+
+                    if potentiometer_values[0] is not None:
+                        self.ui.lineedit_pot_0.setText("{0:.3g} V".format(potentiometer_values[0]))
+                    if potentiometer_values[1] is not None:
+                        self.ui.lineedit_pot_1.setText("{0:.3g} V".format(potentiometer_values[1]))
+                    if potentiometer_values[2] is not None:
+                        self.ui.lineedit_pot_2.setText("{0:.3g} V".format(potentiometer_values[2]))
+                    if potentiometer_values[3] is not None:
+                        self.ui.lineedit_pot_3.setText("{0:.3g} V".format(potentiometer_values[3]))
+                    if potentiometer_values[4] is not None:
+                        self.ui.lineedit_pot_4.setText("{0:.3g} V".format(potentiometer_values[4]))
+                    if potentiometer_values[5] is not None:
+                        self.ui.lineedit_pot_5.setText("{0:.3g} V".format(potentiometer_values[5]))
 
                     if self.pot_min[0] is not None:
                         self.ui.lineedit_pot_min_0.setText("{0:.3g} V".format(self.pot_min[0]))
@@ -356,7 +389,10 @@ class UMIRobotMainWindow(QMainWindow):
                         if abs(self.pot_min[5] - self.pot_max[5]) > self.potentiometer_calibration_difference:
                             self.ui.radio_pot_5.setChecked(True)
 
-                    self.umi_robot_shared_memory_receiver.send_qd(self.qd)
+                    if self.ui.checkbox_communication_arduino_all.isChecked():
+                        self.umi_robot_shared_memory_receiver.send_qd(self.qd)
+                    else:
+                        self.umi_robot_shared_memory_receiver.send_qd([0, 0, 0, 0, 0, 0])
                 except Exception as e:
                     self.log("Error::_timer_callback" + str(e))
             else:
@@ -375,16 +411,20 @@ class UMIRobotMainWindow(QMainWindow):
             return False
 
     def _button_connect_port_clicked_callback(self):
-        current_selected_port = self.ui.combobox_port.currentText()
-        if (current_selected_port == self.umi_robot_shared_memory_receiver.get_port()) and \
-                self.umi_robot_shared_memory_receiver.is_open():
-            self.log("Log::Already connected to {}.".format(current_selected_port))
-            return
-        if current_selected_port != "":
-            self.umi_robot_shared_memory_receiver.send_port(current_selected_port)
-            self.log("Info::Requesting connection to {}...".format(current_selected_port))
+        if self.ui.checkbox_communication_arduino_all.isChecked() or \
+                self.ui.checkbox_communication_arduino_master_only.isChecked():
+            current_selected_port = self.ui.combobox_port.currentText()
+            if (current_selected_port == self.umi_robot_shared_memory_receiver.get_port()) and \
+                    self.umi_robot_shared_memory_receiver.is_open():
+                self.log("Log::Already connected to {}.".format(current_selected_port))
+                return
+            if current_selected_port != "":
+                self.umi_robot_shared_memory_receiver.send_port(current_selected_port)
+                self.log("Info::Requesting connection to {}...".format(current_selected_port))
+            else:
+                self.log("Warning::No port selected.")
         else:
-            self.log("Warning::No port selected.")
+            self.log("Warning::No connection node selected.")
 
     def _button_refresh_port_clicked_callback(self):
         self.ui.combobox_port.clear()

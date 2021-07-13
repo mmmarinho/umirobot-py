@@ -486,15 +486,22 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
-          <item row="4" column="0">
-           <widget class="QLineEdit" name="lineedit_pot_min_4">
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="lineedit_pot_min_1">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="lineedit_pot_min_1">
+          <item row="3" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_3">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -507,15 +514,8 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_3">
+          <item row="4" column="0">
+           <widget class="QLineEdit" name="lineedit_pot_min_4">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -528,21 +528,28 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_5">
+          <item row="3" column="0">
+           <widget class="QLineEdit" name="lineedit_pot_min_3">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_0">
+          <item row="4" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_4">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_0">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
            <widget class="QRadioButton" name="radio_pot_0">
             <property name="enabled">
              <bool>false</bool>
@@ -555,22 +562,8 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLineEdit" name="lineedit_pot_min_3">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_4">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="lineedit_pot_max_2">
+          <item row="5" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_5">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -583,7 +576,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="1" column="3">
            <widget class="QRadioButton" name="radio_pot_1">
             <property name="enabled">
              <bool>false</bool>
@@ -597,6 +590,13 @@
            </widget>
           </item>
           <item row="2" column="2">
+           <widget class="QLineEdit" name="lineedit_pot_max_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
            <widget class="QRadioButton" name="radio_pot_2">
             <property name="enabled">
              <bool>false</bool>
@@ -609,7 +609,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="3" column="3">
            <widget class="QRadioButton" name="radio_pot_3">
             <property name="enabled">
              <bool>false</bool>
@@ -622,7 +622,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="4" column="3">
            <widget class="QRadioButton" name="radio_pot_4">
             <property name="enabled">
              <bool>false</bool>
@@ -635,7 +635,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
+          <item row="5" column="3">
            <widget class="QRadioButton" name="radio_pot_5">
             <property name="enabled">
              <bool>false</bool>
@@ -644,6 +644,48 @@
              <string/>
             </property>
             <property name="autoExclusive">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_0">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_3">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_4">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="lineedit_pot_5">
+            <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -691,14 +733,14 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_1">
+           <widget class="QLineEdit" name="lineedit_teleop_1">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_5">
+           <widget class="QLineEdit" name="lineedit_teleop_5">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -726,21 +768,21 @@
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_2">
+           <widget class="QLineEdit" name="lineedit_teleop_2">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_3">
+           <widget class="QLineEdit" name="lineedit_teleop_3">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_0">
+           <widget class="QLineEdit" name="lineedit_teleop_0">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -761,7 +803,7 @@
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QLineEdit" name="lineedit_pot_4">
+           <widget class="QLineEdit" name="lineedit_teleop_4">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -831,19 +873,32 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QCheckBox" name="checkbox_communication_arduino_all">
            <property name="text">
-            <string>Arduino</string>
+            <string>All</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkbox_communication_arduino">
-           <property name="text">
-            <string/>
+          <spacer name="horizontalSpacer_16">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkbox_communication_arduino_master_only">
+           <property name="text">
+            <string>Master only</string>
            </property>
           </widget>
          </item>
@@ -1033,6 +1088,16 @@
            </spacer>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Arduino</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
       </layout>
