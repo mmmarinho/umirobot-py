@@ -1,4 +1,4 @@
-# UMIRobot Python [![Python package](https://github.com/mmmarinho/umirobot-py/actions/workflows/python_package.yml/badge.svg)](https://github.com/mmmarinho/umirobot-py/actions/workflows/python_package.yml)[![PyPI version](https://badge.fury.io/py/umirobot.svg)](https://badge.fury.io/py/umirobot) 
+# UMIRobot Python [![Python package](https://github.com/mmmarinho/umirobot-py/actions/workflows/python-package.yml/badge.svg)](https://github.com/mmmarinho/umirobot-py/actions/workflows/python-package.yml)[![PyPI version](https://badge.fury.io/py/umirobot.svg)](https://badge.fury.io/py/umirobot) 
 
 The Python package to interact with the UMIRobot.
 
