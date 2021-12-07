@@ -64,3 +64,9 @@ class UMIRobotSharedMemoryReceiver:
         self.lock.acquire()
         self.connection_information[self.connection_information_dict['shutdown_flag']] = flag
         self.lock.release()
+
+    def get_shutdown_flag(self):
+        self.lock.acquire()
+        shutdown_flag = self.connection_information[self.connection_information_dict['shutdown_flag']]
+        self.lock.release()
+        return shutdown_flag
