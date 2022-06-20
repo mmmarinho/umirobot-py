@@ -19,14 +19,14 @@ setup(
     version_format='{tag}.{commitcount}',
     setup_requires=['setuptools-git-version'],
     install_requires=[
-        'pyserial', 'PyQt6', 'qdarkstyle', 'dqrobotics'
+        'pyserial', 'PyQt6', 'dqrobotics'
     ],
     packages=setuptools.find_packages(),
     url='https://github.com/mmmarinho/umirobot-py',
     license='GPLv3',
     author='Murilo M. Marinho',
     author_email='murilo@g.ecc.u-tokyo.ac.jp',
-    description='UMIRobot control code for Python.',
+    description='UMIRobot control code and GUI for Python.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     python_requires='>=3.8',

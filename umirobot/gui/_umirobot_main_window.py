@@ -15,7 +15,6 @@ from sys import platform as _platform
 
 if _platform == 'win32':
     import ctypes
-    import qdarkstyle
 elif _platform == 'darwin':
     import glob
 else:
@@ -457,7 +456,39 @@ class UMIRobotMainWindow(QMainWindow):
 
         # Set theme for Windows and fix icon not showing on taskbar
         if _platform == 'win32':
-            myapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
+            # Palette from this link modified to PyQt6 by myself
+            # https://stackoverflow.com/questions/15035767/is-the-qt-5-dark-fusion-theme-available-for-windows
+            from PyQt6.QtWidgets import QStyleFactory
+            from PyQt6.QtGui import QPalette, QColor
+            from PyQt6.QtCore import Qt
+            app.setStyle(QStyleFactory.create("Fusion"))
+            defaultFont = QApplication.font()
+            defaultFont.setPointSize(defaultFont.pointSize() + 2)
+            app.setFont(defaultFont)
+            dark_palette = QPalette()
+            dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+            dark_palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorRole.Base, QColor(42, 42, 42))
+            dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(66, 66, 66))
+            dark_palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorRole.Dark, QColor(35, 35, 35))
+            dark_palette.setColor(QPalette.ColorRole.Shadow, QColor(20, 20, 20))
+            dark_palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            dark_palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+            dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+            dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(80, 80, 80))
+            dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(127, 127, 127))
+
+            app.setPalette(dark_palette)
+
             # https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('utokyo.umirobot')
 
