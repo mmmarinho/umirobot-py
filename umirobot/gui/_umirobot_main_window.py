@@ -21,9 +21,9 @@ elif _platform == 'darwin':
 else:
     raise Exception('Unsupported platform ', _platform)
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtGui import QPixmap, QIcon
 
 from dqrobotics.interfaces.vrep import DQ_VrepInterface
 from dqrobotics.utils.DQ_Math import deg2rad, rad2deg
@@ -32,7 +32,7 @@ from umirobot.shared_memory import UMIRobotSharedMemoryReceiver
 from umirobot.gui._umirobot_main_window_ui import Ui_MainWindow
 
 
-# Regenerate UI with 'pyuic5 umirobot_main_window.ui -o _umirobot_main_window_ui.py'
+# Regenerate UI with 'pyuic6 umirobot_main_window.ui -o _umirobot_main_window_ui.py'
 class UMIRobotMainWindow(QMainWindow):
     def __init__(self, umi_robot_shared_memory_receiver):
         super(UMIRobotMainWindow, self).__init__()
@@ -464,7 +464,7 @@ class UMIRobotMainWindow(QMainWindow):
         myapp.show()
 
         try:
-            app.exec_()
+            app.exec()
         except Exception as e:
             print("umirobot_main_window::run::Error::" + str(e))
         except KeyboardInterrupt:

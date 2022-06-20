@@ -1,5 +1,5 @@
 pyserial~=3.5
-PyQt5~=5.15.2
+PyQt6
 qdarkstyle~=2.8.1
 setuptools~=51.1.2
 dqrobotics~=20.4.0.54
