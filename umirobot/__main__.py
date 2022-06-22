@@ -12,52 +12,9 @@ see <https://www.gnu.org/licenses/>.
 import multiprocessing as mp
 import multiprocessing.managers as mm
 
-from umirobot import UMIRobot
+from umirobot import UMIRobot, umirobot_communication_loop
 from umirobot.shared_memory import UMIRobotSharedMemoryProvider
 from umirobot.gui import UMIRobotMainWindow
 
 if __name__ == '__main__':
-    with UMIRobot() as umirobot, mm.SharedMemoryManager() as smm:
-        # Lock
-        lock = mp.Lock()
-        # Provider
-        shared_memory_provider = UMIRobotSharedMemoryProvider(shared_memory_manager=smm, lock=lock)
-        # Receiver
-        shared_memory_receiver_process = mp.Process(
-            target=UMIRobotMainWindow.run,
-            args=(shared_memory_provider.get_shared_memory_receiver_initializer_args(), lock)
-        )
-        shared_memory_receiver_process.start()
-
-        try:
-            # Control loop
-            while True:
-
-                # Connect to the serial port if requested
-                if shared_memory_provider.get_port() is not None:
-                    if shared_memory_provider.get_port_connect_signal():
-                        if shared_memory_provider.get_port() != umirobot.get_port():
-                            umirobot.set_port(shared_memory_provider.get_port())
-                            shared_memory_provider.send_port_connect_signal(False)
-
-                # If connection is open, update, handle q and qd
-                if umirobot.is_open():
-                    umirobot.update()
-                    shared_memory_provider.send_q(umirobot.get_q())
-                    shared_memory_provider.send_potentiometer_values(umirobot.get_potentiometer_values())
-                    shared_memory_provider.send_digital_in_values(umirobot.get_digital_in_values())
-                    umirobot.set_qd(shared_memory_provider.get_qd())
-
-                # Always send connection status
-                shared_memory_provider.send_is_open(umirobot.is_open())
-
-                # Check if shutdown signal was sent by receiver
-                if shared_memory_provider.get_shutdown_flag():
-                    print('umirobot::__main__::Info::Provider shutdown by receiver.')
-                    break
-
-        except Exception as e:
-            print('umirobot::__main__::Error::' + str(e))
-        except KeyboardInterrupt:
-            print('umirobot::__main__::Info::Shutdown by CTRL+C.')
-        shared_memory_receiver_process.join()
+    umirobot_communication_loop(UMIRobotMainWindow.run)

@@ -9,3 +9,4 @@ You should have received a copy of the GNU General Public License along with thi
 see <https://www.gnu.org/licenses/>.
 """
 from umirobot._umirobot import UMIRobot
+from umirobot._umirobot_communication_loop import umirobot_communication_loop
