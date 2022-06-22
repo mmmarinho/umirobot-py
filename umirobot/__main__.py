@@ -45,6 +45,7 @@ if __name__ == '__main__':
                     umirobot.update()
                     shared_memory_provider.send_q(umirobot.get_q())
                     shared_memory_provider.send_potentiometer_values(umirobot.get_potentiometer_values())
+                    shared_memory_provider.send_digital_in_values(umirobot.get_digital_in_values())
                     umirobot.set_qd(shared_memory_provider.get_qd())
 
                 # Always send connection status
