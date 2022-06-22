@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020 Murilo Marques Marinho (www.murilomarinho.info)
+Copyright (C) 2020-2022 Murilo Marques Marinho (www.murilomarinho.info)
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
 version.
@@ -14,7 +14,11 @@ from umirobot.shared_memory.umirobot_shared_memory_common import shared_memory_m
 class UMIRobotSharedMemoryReceiver:
     def __init__(self, shared_memory_lists_tuple, lock):
         self.connection_information_dict = shared_memory_map
-        self.connection_information, self.shareable_q, self.shareable_qd, self.shareable_potentiometer_values = shared_memory_lists_tuple
+        self.connection_information, \
+        self.shareable_q, \
+        self.shareable_qd, \
+        self.shareable_potentiometer_values,\
+        self.shareable_digital_in_values = shared_memory_lists_tuple
         self.dofs = len(self.shareable_q)
         self.n_potentiometers = len(self.shareable_potentiometer_values)
         self.lock = lock
@@ -38,6 +42,12 @@ class UMIRobotSharedMemoryReceiver:
         potentiometer_values = list(self.shareable_potentiometer_values)
         self.lock.release()
         return potentiometer_values
+
+    def get_digital_in_values(self):
+        self.lock.acquire()
+        digital_in_values = list(self.shareable_digital_in_values)
+        self.lock.release()
+        return digital_in_values
 
     def is_open(self):
         self.lock.acquire()

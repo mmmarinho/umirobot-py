@@ -1,5 +1,5 @@
 """
-Copyright (C) 2020-2021 Murilo Marques Marinho (www.murilomarinho.info)
+Copyright (C) 2020-2022 Murilo Marques Marinho (www.murilomarinho.info)
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
 version.
@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 class UMIRobot:
-    def __init__(self, baudrate=115200, timeout=0.5, dofs=6, n_potentiometers=6):
+    def __init__(self, baudrate=115200, timeout=0.5, n_servos=6, n_potentiometers=6, n_digital_inputs=5):
         """
         Making an instance of a UMIRobot does not start the communication automatically. To connect,
         use set_port(). The recommended way of using this class is with the 'with' statement, an example as follows:
@@ -23,13 +23,17 @@ class UMIRobot:
         >>  print(umi_robot.get_q())
         :param baudrate: The baudrate for the serial communication. Needs to match the one set in the UMIRobot.
         :param timeout: A timeout for waiting for serial messages. The default value is recommended.
-        :param dofs: The number of DoFs of your UMIRobot.
+        :param n_servos: The number of servos of your UMIRobot.
+        :param n_potentiometers: The number of potentiometers read over serial.
+        :param n_digital_inputs: The number of digital inputs read over serial.
         """
         self.serial_ = serial.Serial()
         self.serial_.baudrate = baudrate
         self.serial_.timeout = timeout
-        self.dofs = dofs
+        self.n_servos = n_servos
         self.n_potentiometers = n_potentiometers
+        self.n_digital_inputs = n_digital_inputs
+
         self.message_log = []
 
         self.__clear__()
@@ -49,11 +53,14 @@ class UMIRobot:
         self.qd = []
         self.q = []
         self.potentiometer_values = []
-        for i in range(0, self.dofs):
+        self.digital_input_values = []
+        for i in range(0, self.n_servos):
             self.qd.append(None)
             self.q.append(None)
         for i in range(0, self.n_potentiometers):
             self.potentiometer_values.append(None)
+        for i in range(0, self.n_digital_inputs):
+            self.digital_input_values.append(None)
 
     def set_port(self, port):
         """
@@ -130,9 +137,16 @@ class UMIRobot:
     def get_potentiometer_values(self):
         """
         Returns the potentiometer values.
-        :return: a list with len()=dofs whose values can be None if uninitialized
+        :return: a list with len()=n_potentiometers whose values can be None if uninitialized
         """
         return self.potentiometer_values
+
+    def get_digital_in_values(self):
+        """
+        Returns the digital input values.
+        :return: a list with len()=n_digital_inputs whose values can be None if uninitialized
+        """
+        return self.digital_input_values
 
     def set_qd(self, qd):
         """
@@ -145,10 +159,10 @@ class UMIRobot:
         for i in range(0, len(qd)):
             if qd[i] is None:
                 return
-        if len(qd) is not self.dofs:
+        if len(qd) is not self.n_servos:
             self.log("Warning::set_qd::Ignoring qd with len={} != self.dofs={}.".format(
                 len(qd),
-                self.dofs
+                self.n_servos
             ))
             return
         self.qd = qd
@@ -165,19 +179,49 @@ class UMIRobot:
                 # Decodes input line
                 serial_string = serial_bytes.decode("ascii")
                 splitted_string = serial_string.split(" ")
-                if len(splitted_string) == self.dofs + self.n_potentiometers + 1:
-                    if splitted_string[self.dofs + self.n_potentiometers] == "UMI\r\n":
-                        for i in range(0, self.dofs):
-                            self.q[i] = int(splitted_string[i])
-                        for i in range(0, self.n_potentiometers):
-                            self.potentiometer_values[i] = float(splitted_string[i+self.dofs])*(5.0/1023.0)
+                splitted_string_size = len(splitted_string)
+                if splitted_string_size == self.n_servos + self.n_potentiometers + self.n_digital_inputs + 4:
+                    if splitted_string[splitted_string_size-1] == "UMI\r\n":
+                        i = 0
+                        # Servos
+                        n_servos_from_arduino = int(splitted_string[i])
+                        if self.n_servos != n_servos_from_arduino:
+                            raise RuntimeError("Servo count from arduino differs from expected count {}!={}.".format(
+                                n_servos_from_arduino,
+                                self.n_servos
+                            ))
+                        i = i + 1
+                        for j in range(i, i + self.n_servos):
+                            self.q[j-i] = int(splitted_string[j])
+                        i = i + self.n_servos
+                        # Potentiometers
+                        n_potentiometers_from_arduino = int(splitted_string[i])
+                        if self.n_potentiometers != n_potentiometers_from_arduino:
+                            raise RuntimeError("Potentiometers count from arduino differs from expected count {}!={}.".format(
+                                n_potentiometers_from_arduino,
+                                self.n_potentiometers
+                            ))
+                        i = i + 1
+                        for j in range(i, i + self.n_potentiometers):
+                            self.potentiometer_values[j-i] = float(splitted_string[j]) * (5.0 / 1023.0)
+                        i = i + self.n_potentiometers
+                        # Digital Inputs
+                        n_digital_inputs_from_arduino = int(splitted_string[i])
+                        if self.n_digital_inputs != n_digital_inputs_from_arduino:
+                            raise RuntimeError("Digital input count from arduino differs from expected count {}!={}.".format(
+                                n_digital_inputs_from_arduino,
+                                self.n_digital_inputs
+                            ))
+                        i = i + 1
+                        for j in range(i, i + self.n_digital_inputs):
+                            self.digital_input_values[j-i] = int(splitted_string[j])
 
                     # Encodes output line
                     if self.qd is not None:
                         command_string = b''
-                        for i in range(0, self.dofs):
+                        for i in range(0, self.n_servos):
                             command_string += bytes(str(self.qd[i]), "ascii")
-                            if i < self.dofs - 1:
+                            if i < self.n_servos - 1:
                                 command_string += b' '
                         command_string += b'\n'
                         self.serial_.write(command_string)
