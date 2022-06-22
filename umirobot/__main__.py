@@ -25,7 +25,7 @@ if __name__ == '__main__':
         # Receiver
         shared_memory_receiver_process = mp.Process(
             target=UMIRobotMainWindow.run,
-            args=[shared_memory_provider.get_shared_memory_receiver_initializer_args(), lock]
+            args=(shared_memory_provider.get_shared_memory_receiver_initializer_args(), lock)
         )
         shared_memory_receiver_process.start()
 
