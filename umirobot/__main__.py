@@ -9,11 +9,7 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Gen
 You should have received a copy of the GNU General Public License along with this program. If not,
 see <https://www.gnu.org/licenses/>.
 """
-import multiprocessing as mp
-import multiprocessing.managers as mm
-
-from umirobot import UMIRobot, umirobot_communication_loop
-from umirobot.shared_memory import UMIRobotSharedMemoryProvider
+from umirobot import umirobot_communication_loop
 from umirobot.gui import UMIRobotMainWindow
 
 if __name__ == '__main__':
