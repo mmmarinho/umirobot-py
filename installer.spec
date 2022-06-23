@@ -45,6 +45,6 @@ exe = EXE(
 app = BUNDLE(
     exe,
     name='UMIRobotGUI.app',
-    icon=None,
+    icon='umirobot/gui/icon.png',
     bundle_identifier=None,
 )
