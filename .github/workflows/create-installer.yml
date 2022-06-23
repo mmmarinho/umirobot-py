@@ -24,7 +24,7 @@ jobs:
     - name: Install installer dependencies [Python]
       run: |
         python -m pip install --upgrade pip
-        pip install dqrobotics pillow pyinstaller
+        pip install dqrobotics pillow pyinstaller pyserial wheel
     - name: Build installer
       run: |
         pyinstaller installer.spec
