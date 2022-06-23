@@ -8,7 +8,8 @@ a = Analysis(
     ['installer.py'],
     pathex=[],
     binaries=[],
-    datas=[('umirobot/gui/umirobot.png','umirobot/gui')],
+    datas=[('umirobot/gui/umirobot.png','umirobot/gui'),
+    ('umirobot/gui/icon.png','umirobot/gui')],
     hiddenimports=['numpy'],
     hookspath=[],
     hooksconfig={},
@@ -41,6 +42,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=r'umirobot/gui/icon.png'
 )
 app = BUNDLE(
     exe,
