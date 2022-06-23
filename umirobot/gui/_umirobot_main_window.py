@@ -38,7 +38,7 @@ class UMIRobotMainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.statusBar().showMessage("Copyright (c) 2020-2021 Murilo M. Marinho (www.murilomarinho.info)")
+        self.statusBar().showMessage("Copyright (c) 2020-2022 Murilo M. Marinho (www.murilomarinho.info)")
 
         self.umi_robot_shared_memory_receiver = umi_robot_shared_memory_receiver
         self.is_open = False
