@@ -8,7 +8,7 @@ a = Analysis(
     ['installer.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('umirobot/gui/umirobot.png','umirobot/gui/umirobot.png')],
     hiddenimports=['numpy'],
     hookspath=[],
     hooksconfig={},
