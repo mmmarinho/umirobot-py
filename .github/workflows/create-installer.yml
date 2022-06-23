@@ -33,4 +33,4 @@ jobs:
       with:
         name: UMIRobotGUI
         path: dist/UMIRobotGUI.exe
-          retention-days: 1
+        retention-days: 1
