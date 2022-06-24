@@ -37,7 +37,7 @@ jobs:
     - name: Zip Artifact (MacOS-Intel)
       if: matrix.os == 'macos-latest'
       run: |
-        zip dist/UMIRobotGUI.app UMIRobotGUI.zip
+        zip -r dist/UMIRobotGUI.app.zip dist/UMIRobotGUI.app
     - name: Upload Artifact (MacOS-Intel)
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v3
