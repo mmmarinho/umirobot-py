@@ -1,4 +1,4 @@
-name: Create Installer
+name: Create Binary
 
 on: [push]
 
@@ -27,9 +27,16 @@ jobs:
     - name: Run pyinstaller
       run: |
         pyinstaller installer.spec
-    - name: Upload Artifact
+    - name: Upload Artifact (Windows)
+      if: matrix.os == 'windows-latest'
+      with:
+        name: UMIRobotGUI_Windows_am64
+        path: dist/UMIRobotGUI.exe
+        retention-days: 1
+    - name: Upload Artifact (MacOS-Intel)
+      if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: UMIRobotGUI
-        path: dist/UMIRobotGUI*
+        name: UMIRobotGUI_MacOS_amd64
+        path: dist/UMIRobotGUI.app
         retention-days: 1

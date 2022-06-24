@@ -43,7 +43,8 @@ class UMIRobot:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        self.print_log_to_file()
+        # 22.06.24 --> Printing log files on Windows are causing access errors.
+        # self.print_log_to_file()
 
     def __clear__(self):
         """
