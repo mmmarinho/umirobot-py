@@ -43,5 +43,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: UMIRobotGUI_MacOS_amd64
-        path: dist/UMIRobotGUI.zip
+        path: dist/UMIRobotGUI.app.zip
         retention-days: 1
