@@ -4,6 +4,8 @@ The Python package to interact with the UMIRobot.
 
 ## General User - GUI Version
 
+![スクリーンショット 2022-06-24 9 08 03](https://user-images.githubusercontent.com/46012516/175437004-3428715e-1da5-4f81-aee8-91eb4db01af7.png)
+
 Download the latest binaries at 
 
 - https://github.com/mmmarinho/umirobot-py/releases/latest
