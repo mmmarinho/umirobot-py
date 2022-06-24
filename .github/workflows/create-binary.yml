@@ -34,10 +34,14 @@ jobs:
         name: UMIRobotGUI_Windows_am64
         path: dist/UMIRobotGUI.exe
         retention-days: 1
+    - name: Zip Artifact (MacOS-Intel)
+      if: matrix.os == 'macos-latest'
+      run: |
+        zip dist/UMIRobotGUI.app UMIRobotGUI.zip
     - name: Upload Artifact (MacOS-Intel)
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v3
       with:
         name: UMIRobotGUI_MacOS_amd64
-        path: dist/UMIRobotGUI.app
+        path: dist/UMIRobotGUI.zip
         retention-days: 1
