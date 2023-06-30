@@ -5,13 +5,19 @@ The Python package to interact with the UMIRobot.
 Citation:
 
 ```bibtex
-@misc{https://doi.org/10.48550/arxiv.2301.06668,
-  author = {Marinho, Murilo M. and Lin, Hung-Ching and Zhao, Jiawei},
-  title = {UMIRobot: An Open-{Software, Hardware} Low-Cost Robotic Manipulator for Education},
-  doi = {10.48550/ARXIV.2301.06668},
-  url = {https://arxiv.org/abs/2301.06668},
-  publisher = {arXiv},
-  year = {2023}
+@misc{marinho2022umirobot,
+  author       = {Marinho, M. M. and Lin, H. and Zhao, J.},
+  title        = {UMIRobot: An Open-{Software, Hardware} Low-Cost Robotic Manipulator for Education},
+  booktitle    = {2023 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year         = {2023},
+  month        = oct,
+  organization = {IEEE},
+  custom_type  = {2. International Conference Paper},
+  pages        = {1--8},
+  note         = {Accepted for publication.},
+  url          = {https://arxiv.org/pdf/2302.05567},
+  url_code     = {https://github.com/mmmarinho/umirobot-py},
+  url_website  = {https://mmmarinho.github.io/UMIRobot/}
 }
 
 ```
